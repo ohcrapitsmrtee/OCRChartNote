@@ -5,6 +5,9 @@ import tempfile
 import os
 import subprocess
 
+# Add directories to the PATH environment variable
+os.environ['PATH'] += os.pathsep + '/usr/bin' + os.pathsep + '/usr/local/bin'
+
 def check_pdfinfo():
     try:
         # Look for 'pdfinfo' in the PATH and common locations
