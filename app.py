@@ -7,11 +7,18 @@ import subprocess
 
 def check_pdfinfo():
     try:
-        subprocess.run(["pdfinfo"], check=True)
-        return "pdfinfo is installed and accessible."
-    except subprocess.CalledProcessError:
-        return "pdfinfo is not accessible."
+        common_paths = ['/usr/bin', '/usr/local/bin', '/bin']
+        found = any(os.path.isfile(os.path.join(p, 'pdfinfo')) for p in common_paths)
+        if found:
+            path = next(os.path.join(p, 'pdfinfo') for p in common_paths if os.path.isfile(os.path.join(p, 'pdfinfo')))
+            result = subprocess.run([path], capture_output=True, text=True)
+            return f"pdfinfo is installed at {path}. Output:\n{result.stdout}"
+        else:
+            return "pdfinfo executable not found in common paths."
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
+# Diagnostic output
 st.write(check_pdfinfo())
 
 def perform_ocr(uploaded_file, redact_words):
