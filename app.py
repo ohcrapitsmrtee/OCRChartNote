@@ -3,6 +3,16 @@ from pdf2image import convert_from_bytes
 import pytesseract
 import tempfile
 import os
+import subprocess
+
+def check_pdfinfo():
+    try:
+        subprocess.run(["pdfinfo"], check=True)
+        return "pdfinfo is installed and accessible."
+    except subprocess.CalledProcessError:
+        return "pdfinfo is not accessible."
+
+st.write(check_pdfinfo())
 
 def perform_ocr(uploaded_file, redact_words):
     # Save the uploaded file to a temporary location
