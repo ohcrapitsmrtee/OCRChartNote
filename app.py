@@ -25,10 +25,10 @@ def perform_ocr(uploaded_file, redact_words):
     # Delete temporary file
     os.unlink(temp_file_path)
 
-    return text
+    return text, pages
 
 def main():
-    st.title("PDF Redaction Tool")
+    st.title("PDF Redaction & OCR Tool")
 
     # File upload
     uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
@@ -38,11 +38,15 @@ def main():
 
     if uploaded_file is not None:
         # Perform OCR and redaction
-        text = perform_ocr(uploaded_file, [word.strip() for word in redact_words.split(',')])
+        text, pages = perform_ocr(uploaded_file, [word.strip() for word in redact_words.split(',')])
 
         # Display redacted OCR result
         st.header("Redacted OCR Result")
         st.text_area("Redacted Text", text, height=400)
+
+        # Display images
+        for i, page in enumerate(pages):
+            st.image(page, caption=f"Page {i+1}", use_column_width=True)
 
         # Save redacted text to file
         if st.button("Save Redacted Text"):
