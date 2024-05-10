@@ -110,6 +110,11 @@ def main():
             with open("redacted_text.txt", "w") as file:
                 file.write(text)
             st.success("Redacted text saved successfully as redacted_text.txt")
-
+     # Add Disclaimer
+    st.markdown("""
+        **Disclaimer**: While this application implements encryption and deletes data after each session, 
+        I am not responsible for any data leaks or HIPAA violations that may occur. If you require 
+        a local version of this tool or have concerns about data security, please contact me.
+    """)
 if __name__ == "__main__":
     main()
