@@ -4,7 +4,42 @@ import pytesseract
 import tempfile
 import os
 import subprocess
+from cryptography.fernet import Fernet
 
+# Generate a key for encryption and decryption
+key = Fernet.generate_key()
+cipher_suite = Fernet(key)
+
+def secure_delete(file_path, passes=3):
+    with open(file_path, "ba+") as file:
+        length = file.tell()
+        for _ in range(passes):
+            file.seek(0)
+            file.write(os.urandom(length))
+    os.unlink(file_path)
+def perform_ocr(uploaded_file, redact_words):
+    with tempfile.NamedTemporaryFile(delete=True) as temp_file:
+        encrypted_data = cipher_suite.encrypt(uploaded_file.read())
+        temp_file.write(encrypted_data)
+        temp_file_path = temp_file.name
+
+        # Decrypt data for processing
+        decrypted_data = cipher_suite.decrypt(open(temp_file_path, "rb").read())
+
+        # Convert PDF to images
+        pages = convert_from_bytes(decrypted_data)
+
+        text = ""
+        for page in pages:
+            text += pytesseract.image_to_string(page)
+
+        for word in redact_words:
+            text = text.replace(word, "*" * len(word))
+
+        # Ensure secure deletion of temporary file
+        secure_delete(temp_file_path)
+
+    return text, pages
 # Add directories to the PATH environment variable
 os.environ['PATH'] += os.pathsep + '/usr/bin' + os.pathsep + '/usr/local/bin'
 
